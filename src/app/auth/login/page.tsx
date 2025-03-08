@@ -4,29 +4,9 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 import { authService } from '@/lib/api/services';
 import type { LoginCredentials } from '@/types/api';
-
-const fadeIn = keyframes`
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-`;
-
-const shimmer = keyframes`
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
-`;
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -70,23 +50,21 @@ const ImageContent = styled.div`
   color: white;
   width: 100%;
   padding: ${({ theme }) => theme.spacing.xl};
-  animation: ${fadeIn} 0.6s ease-out;
 `;
 
 const WelcomeText = styled.h2`
-  font-size: ${({ theme }) => theme.typography.fontSize['4xl']};
+  font-size: ${({ theme }) => theme.typography.fontSize['3xl']};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   margin-bottom: ${({ theme }) => theme.spacing.md};
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 `;
 
 const WelcomeDescription = styled.p`
-  font-size: ${({ theme }) => theme.typography.fontSize.xl};
+  font-size: ${({ theme }) => theme.typography.fontSize.lg};
   opacity: 0.9;
-  max-width: 600px;
+  max-width: 500px;
   margin: 0 auto;
-  line-height: 1.6;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  line-height: 1.5;
 `;
 
 const FormSection = styled.div`
@@ -95,11 +73,7 @@ const FormSection = styled.div`
   align-items: center;
   justify-content: center;
   padding: ${({ theme }) => theme.spacing.md};
-  background: linear-gradient(
-    135deg,
-    ${({ theme }) => theme.colors.background} 0%,
-    ${({ theme }) => `${theme.colors.background}CC`} 100%
-  );
+  background: ${({ theme }) => theme.colors.background};
 `;
 
 const FormContainer = styled.div`
@@ -107,11 +81,8 @@ const FormContainer = styled.div`
   width: 100%;
   background: ${({ theme }) => theme.colors.white};
   padding: ${({ theme }) => theme.spacing.xl};
-  border-radius: ${({ theme }) => theme.borderRadius.xl};
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  animation: ${fadeIn} 0.6s ease-out;
-  backdrop-filter: blur(8px);
-  border: 1px solid ${({ theme }) => theme.colors.border.light};
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 `;
 
 const LogoContainer = styled.div`
@@ -120,35 +91,26 @@ const LogoContainer = styled.div`
 `;
 
 const Logo = styled.div`
-  font-size: 2.5rem;
+  font-size: ${({ theme }) => theme.typography.fontSize['2xl']};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.primary};
   margin-bottom: ${({ theme }) => theme.spacing.xs};
-  letter-spacing: -1px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: ${({ theme }) => theme.spacing.xs};
-
-  span {
-    background: linear-gradient(135deg, ${({ theme }) => theme.colors.primary}, ${({ theme }) => theme.colors.primaryHover});
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
 `;
 
 const LogoIcon = styled.div`
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, ${({ theme }) => theme.colors.primary}, ${({ theme }) => theme.colors.primaryHover});
-  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  background: ${({ theme }) => theme.colors.primary};
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 1.5rem;
-  margin-right: ${({ theme }) => theme.spacing.xs};
-  box-shadow: 0 4px 12px ${({ theme }) => `${theme.colors.primary}40`};
+  font-size: ${({ theme }) => theme.typography.fontSize.lg};
 `;
 
 const Subtitle = styled.p`
@@ -165,29 +127,28 @@ const Form = styled.form`
 const FormGroup = styled.div`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.xs};
+  gap: ${({ theme }) => theme.spacing.md};
+  margin-bottom: ${({ theme }) => theme.spacing.lg};
 `;
 
 const Label = styled.label`
   font-size: ${({ theme }) => theme.typography.fontSize.sm};
   font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
   color: ${({ theme }) => theme.colors.text.secondary};
+  margin-bottom: ${({ theme }) => theme.spacing.xs};
 `;
 
 const Input = styled.input`
-  padding: ${({ theme }) => theme.spacing.md};
-  border: 2px solid ${({ theme }) => theme.colors.border.default};
-  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  padding: ${({ theme }) => `${theme.spacing.md} ${theme.spacing.lg}`};
+  border: 1px solid ${({ theme }) => theme.colors.border.default};
+  border-radius: ${({ theme }) => theme.borderRadius.md};
   font-size: ${({ theme }) => theme.typography.fontSize.base};
   color: ${({ theme }) => theme.colors.text.primary};
   outline: none;
-  transition: all 0.2s;
-  background: ${({ theme }) => theme.colors.background};
+  transition: border-color 0.2s;
 
   &:focus {
     border-color: ${({ theme }) => theme.colors.primary};
-    box-shadow: 0 0 0 4px ${({ theme }) => `${theme.colors.primary}20`};
-    background: ${({ theme }) => theme.colors.white};
   }
 
   &::placeholder {
@@ -195,40 +156,19 @@ const Input = styled.input`
   }
 `;
 
-interface ButtonProps {
-  $loading?: boolean;
-}
-
-const Button = styled.button<ButtonProps>`
+const Button = styled.button`
   padding: ${({ theme }) => theme.spacing.md};
-  background: ${({ $loading }) =>
-    $loading
-      ? `linear-gradient(90deg, 
-          ${({ theme }) => theme.colors.primary}, 
-          ${({ theme }) => theme.colors.primaryHover},
-          ${({ theme }) => theme.colors.primary})`
-      : `linear-gradient(135deg, 
-          ${({ theme }) => theme.colors.primary}, 
-          ${({ theme }) => theme.colors.primaryHover})`};
-  background-size: ${({ $loading }) => ($loading ? '200% 100%' : '100% 100%')};
+  background: ${({ theme }) => theme.colors.primary};
   color: ${({ theme }) => theme.colors.white};
   border: none;
-  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  border-radius: ${({ theme }) => theme.borderRadius.md};
   font-size: ${({ theme }) => theme.typography.fontSize.base};
   font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
   cursor: pointer;
-  transition: all 0.2s;
-  position: relative;
-  overflow: hidden;
-  animation: ${({ $loading }) => ($loading ? shimmer : 'none')} 2s linear infinite;
+  transition: background-color 0.2s;
 
   &:hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px ${({ theme }) => `${theme.colors.primary}40`};
-  }
-
-  &:active:not(:disabled) {
-    transform: translateY(0);
+    background: ${({ theme }) => theme.colors.primaryHover};
   }
 
   &:disabled {
@@ -243,9 +183,8 @@ const Error = styled.div`
   text-align: center;
   padding: ${({ theme }) => theme.spacing.md};
   background-color: ${({ theme }) => `${theme.colors.danger}10`};
-  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  border-radius: ${({ theme }) => theme.borderRadius.md};
   border: 1px solid ${({ theme }) => `${theme.colors.danger}20`};
-  animation: ${fadeIn} 0.3s ease-out;
 `;
 
 const RegisterLink = styled.div`
@@ -261,10 +200,8 @@ const RegisterLink = styled.div`
     text-decoration: none;
     font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
     margin-left: ${({ theme }) => theme.spacing.xs};
-    transition: all 0.2s;
 
     &:hover {
-      color: ${({ theme }) => theme.colors.primaryHover};
       text-decoration: underline;
     }
   }
@@ -317,7 +254,7 @@ export default function LoginPage() {
         <ImageContent>
           <WelcomeText>Bem-vindo ao QikServe</WelcomeText>
           <WelcomeDescription>
-            Transforme a gestão do seu restaurante com nossa plataforma intuitiva e moderna
+            Gerencie seu restaurante de forma eficiente e profissional
           </WelcomeDescription>
         </ImageContent>
       </ImageSection>
@@ -363,7 +300,7 @@ export default function LoginPage() {
 
             {error && <Error>{error}</Error>}
 
-            <Button type="submit" disabled={loading} $loading={loading}>
+            <Button type="submit" disabled={loading}>
               {loading ? 'Entrando...' : 'Entrar'}
             </Button>
           </Form>
