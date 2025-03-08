@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import StyledComponentsRegistry from "@/lib/registry";
 import RootProvider from "./providers";
+import './globals.css';
 
 export const metadata: Metadata = {
-  title: "Restaurant Dashboard",
-  description: "Dashboard para gerenciamento de restaurantes",
+  title: "QikServe - Dashboard de Restaurantes",
+  description: "Plataforma de gerenciamento para restaurantes",
 };
 
 export default function RootLayout({
