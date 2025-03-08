@@ -8,13 +8,14 @@ import styled from 'styled-components';
 import { authService } from '@/lib/api/services';
 import type { LoginCredentials } from '@/types/api';
 
-const PageContainer = styled.div`
+// Componentes estilizados
+export const PageContainer = styled.div`
   min-height: 100vh;
   display: flex;
   background: ${({ theme }) => theme.colors.background};
 `;
 
-const ImageSection = styled.div`
+export const ImageSection = styled.div`
   flex: 1;
   background: ${({ theme }) => theme.colors.primary};
   display: none;
@@ -230,19 +231,18 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const response = await authService.login(formData);
-      localStorage.setItem('token', response.token);
+      await authService.login(formData);
       router.push('/dashboard');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Credenciais inválidas');
+      setError(err.message || 'Credenciais inválidas');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <PageContainer>
-      <ImageSection>
+    <PageContainer data-testid="page-container">
+      <ImageSection data-testid="image-section">
         <Image
           src="/images/restaurant-bg.jpg"
           alt="Restaurant background"
@@ -269,7 +269,7 @@ export default function LoginPage() {
             <Subtitle>Faça login para acessar sua conta</Subtitle>
           </LogoContainer>
 
-          <Form onSubmit={handleSubmit}>
+          <Form onSubmit={handleSubmit} data-testid="login-form">
             <FormGroup>
               <Label htmlFor="username">Nome de Usuário</Label>
               <Input
@@ -281,6 +281,7 @@ export default function LoginPage() {
                 required
                 placeholder="Digite seu nome de usuário"
                 autoComplete="username"
+                data-testid="username-input"
               />
             </FormGroup>
 
@@ -295,12 +296,13 @@ export default function LoginPage() {
                 required
                 placeholder="Digite sua senha"
                 autoComplete="current-password"
+                data-testid="password-input"
               />
             </FormGroup>
 
-            {error && <Error>{error}</Error>}
+            {error && <Error data-testid="error-message">{error}</Error>}
 
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading} data-testid="submit-button">
               {loading ? 'Entrando...' : 'Entrar'}
             </Button>
           </Form>

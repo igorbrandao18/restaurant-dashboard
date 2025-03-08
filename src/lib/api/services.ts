@@ -1,33 +1,58 @@
-import axios from 'axios';
+import api from './config';
 import { LoginCredentials, LoginResponse, Restaurant, Menu, Order, Address } from '@/types/api';
 
-const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
-});
+interface RegisterResponse {
+  status: number;
+  restaurant: Restaurant;
+}
 
 // Auth Service
 export const authService = {
   login: async (credentials: LoginCredentials): Promise<LoginResponse> => {
-    const response = await api.post('/auth/login', credentials);
-    return response.data;
+    try {
+      const response = await api.post<LoginResponse>('/auth/login', credentials);
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token);
+      }
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Erro ao fazer login');
+    }
   },
+
+  register: async (restaurant: Restaurant): Promise<Restaurant> => {
+    try {
+      console.log('Dados enviados para registro:', restaurant);
+      const response = await api.post<RegisterResponse>('/restaurants', restaurant);
+      console.log('Resposta do registro:', response.data);
+      return response.data.restaurant;
+    } catch (error: any) {
+      console.error('Erro detalhado:', error.response?.data);
+      const errorMessage = error.response?.data?.message || error.message || 'Erro ao criar conta';
+      console.error('Mensagem de erro:', errorMessage);
+      throw new Error(errorMessage);
+    }
+  },
+
+  logout: async (): Promise<void> => {
+    localStorage.removeItem('token');
+  },
+
+  isAuthenticated: (): boolean => {
+    return !!localStorage.getItem('token');
+  }
 };
 
 // Restaurant Service
 export const restaurantService = {
-  create: async (restaurant: Restaurant): Promise<Restaurant> => {
-    const response = await api.post('/restaurants', restaurant);
-    return response.data;
-  },
-
   getProfile: async (): Promise<Restaurant> => {
-    const response = await api.get('/restaurants/profile');
-    return response.data;
+    const response = await api.get<{ status: number; restaurant: Restaurant }>('/restaurants/profile');
+    return response.data.restaurant;
   },
 
   update: async (id: number, restaurant: Restaurant): Promise<Restaurant> => {
-    const response = await api.put(`/restaurants/${id}`, restaurant);
-    return response.data;
+    const response = await api.put<{ status: number; restaurant: Restaurant }>(`/restaurants/${id}`, restaurant);
+    return response.data.restaurant;
   },
 
   getMenus: async (id: number): Promise<Menu[]> => {

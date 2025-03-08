@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import styled from 'styled-components';
-import { restaurantService } from '@/lib/api/services';
+import { authService } from '@/lib/api/services';
 import type { Restaurant } from '@/types/api';
 
 const Container = styled.div`
@@ -114,7 +114,7 @@ export default function RegisterPage() {
   const router = useRouter();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<Restaurant>({
     name: '',
     username: '',
     password: '',
@@ -144,14 +144,13 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const restaurantData: Restaurant = {
-        ...formData
-      };
-
-      await restaurantService.create(restaurantData);
-      router.push('/auth/login');
+      console.log('Enviando dados para registro:', formData);
+      const response = await authService.register(formData);
+      console.log('Resposta do registro:', response);
+      router.push('/auth/login?registered=true');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Erro ao criar conta. Tente novamente.');
+      console.error('Erro no registro:', err);
+      setError(err.message || 'Erro ao criar conta. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -161,7 +160,7 @@ export default function RegisterPage() {
     <Container>
       <FormContainer>
         <Title>Criar Conta do Restaurante</Title>
-        <Form onSubmit={handleSubmit}>
+        <Form onSubmit={handleSubmit} data-testid="register-form">
           <FormGroup>
             <Label htmlFor="name">Nome do Restaurante</Label>
             <Input
@@ -171,6 +170,8 @@ export default function RegisterPage() {
               value={formData.name}
               onChange={handleChange}
               required
+              placeholder="Digite o nome do restaurante"
+              data-testid="name-input"
             />
           </FormGroup>
 
@@ -183,6 +184,8 @@ export default function RegisterPage() {
               value={formData.username}
               onChange={handleChange}
               required
+              placeholder="Digite o nome de usuário"
+              data-testid="username-input"
             />
           </FormGroup>
 
@@ -195,6 +198,9 @@ export default function RegisterPage() {
               value={formData.password}
               onChange={handleChange}
               required
+              placeholder="Digite sua senha"
+              data-testid="password-input"
+              minLength={6}
             />
           </FormGroup>
 
@@ -207,6 +213,8 @@ export default function RegisterPage() {
               value={formData.address}
               onChange={handleChange}
               required
+              placeholder="Digite o endereço completo"
+              data-testid="address-input"
             />
           </FormGroup>
 
@@ -219,6 +227,8 @@ export default function RegisterPage() {
               value={formData.city}
               onChange={handleChange}
               required
+              placeholder="Digite a cidade"
+              data-testid="city-input"
             />
           </FormGroup>
 
@@ -231,12 +241,14 @@ export default function RegisterPage() {
               value={formData.country}
               onChange={handleChange}
               required
+              placeholder="Digite o país"
+              data-testid="country-input"
             />
           </FormGroup>
 
-          {error && <Error>{error}</Error>}
+          {error && <Error data-testid="error-message">{error}</Error>}
 
-          <Button type="submit" disabled={loading}>
+          <Button type="submit" disabled={loading} data-testid="submit-button">
             {loading ? 'Criando conta...' : 'Criar Conta'}
           </Button>
         </Form>
