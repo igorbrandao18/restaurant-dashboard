@@ -2,6 +2,34 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { 
+  Box, 
+  Grid, 
+  Paper, 
+  Typography, 
+  Card, 
+  CardContent, 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableContainer, 
+  TableHead, 
+  TableRow,
+  Button,
+  Chip,
+  CircularProgress,
+  Divider
+} from '@mui/material';
+import { 
+  Restaurant as RestaurantIcon, 
+  MenuBook as MenuIcon, 
+  ShoppingCart as OrderIcon, 
+  AttachMoney as MoneyIcon,
+  CheckCircle,
+  ArrowForward,
+  Settings,
+  Edit
+} from '@mui/icons-material';
 
 // Definindo a interface para os pedidos
 interface Order {
@@ -24,21 +52,50 @@ interface DashboardData {
   isLoading: boolean;
 }
 
-// Componente de card para estatísticas
-const StatCard = ({ title, value, icon, color }: { title: string; value: string; icon: string; color: string }) => (
-  <div className="bg-white rounded-lg shadow-card p-6">
-    <div className="flex items-center justify-between mb-4">
-      <h3 className="text-lg font-medium text-gray-700">{title}</h3>
-      <span className={`text-2xl ${color}`}>{icon}</span>
-    </div>
-    <p className="text-3xl font-bold">{value}</p>
-  </div>
+// Componente de card estatístico
+const StatCard = ({ title, value, icon, color }: { title: string; value: string; icon: React.ReactNode; color: string }) => (
+  <Card sx={{ height: '100%' }}>
+    <CardContent sx={{ 
+      display: 'flex', 
+      flexDirection: 'column',
+      height: '100%',
+      p: 3
+    }}>
+      <Box sx={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        mb: 2 
+      }}>
+        <Box 
+          sx={{ 
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            bgcolor: `${color}.light`,
+            color: `${color}.dark`,
+            borderRadius: '50%',
+            p: 1,
+            mr: 2,
+            width: 48,
+            height: 48
+          }}
+        >
+          {icon}
+        </Box>
+        <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 500 }}>
+          {title}
+        </Typography>
+      </Box>
+      <Typography variant="h4" component="div" sx={{ fontWeight: 'bold', mt: 'auto' }}>
+        {value}
+      </Typography>
+    </CardContent>
+  </Card>
 );
 
 export default function Dashboard() {
-  // Estado para armazenar dados do dashboard (simulados por enquanto)
   const [dashboardData, setDashboardData] = useState<DashboardData>({
-    restaurantName: 'Restaurante Demo',
+    restaurantName: '',
     totalOrders: '0',
     pendingOrders: '0',
     completedOrders: '0',
@@ -47,136 +104,276 @@ export default function Dashboard() {
     isLoading: true,
   });
 
-  // Simular carregamento de dados
   useEffect(() => {
-    const loadDashboardData = async () => {
-      // Simulando uma chamada de API
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setDashboardData({
-        restaurantName: 'Burger House',
-        totalOrders: '156',
-        pendingOrders: '12',
-        completedOrders: '144',
-        totalMenuItems: '48',
-        recentOrders: [
-          { id: 1, customer: 'João Silva', items: 3, total: 'R$ 87,50', status: 'Pendente', time: '15 min atrás' },
-          { id: 2, customer: 'Maria Oliveira', items: 2, total: 'R$ 45,90', status: 'Preparando', time: '30 min atrás' },
-          { id: 3, customer: 'Pedro Santos', items: 5, total: 'R$ 124,30', status: 'Entregue', time: '1 hora atrás' },
-          { id: 4, customer: 'Ana Costa', items: 1, total: 'R$ 32,00', status: 'Entregue', time: '2 horas atrás' },
-        ],
-        isLoading: false,
-      });
-    };
-
+    // Simular carregamento de dados
     loadDashboardData();
   }, []);
 
+  const loadDashboardData = async () => {
+    // Simulando uma chamada de API
+    setTimeout(() => {
+      setDashboardData({
+        restaurantName: 'Restaurante Demo',
+        totalOrders: '156',
+        pendingOrders: '23',
+        completedOrders: '133',
+        totalMenuItems: '48',
+        recentOrders: [
+          { id: 1, customer: 'João Silva', items: 3, total: 'R$ 89,90', status: 'completed', time: '10:30' },
+          { id: 2, customer: 'Maria Oliveira', items: 2, total: 'R$ 67,80', status: 'pending', time: '11:15' },
+          { id: 3, customer: 'Pedro Santos', items: 5, total: 'R$ 125,50', status: 'completed', time: '12:00' },
+          { id: 4, customer: 'Ana Souza', items: 1, total: 'R$ 32,90', status: 'pending', time: '12:45' },
+          { id: 5, customer: 'Carlos Ferreira', items: 4, total: 'R$ 98,70', status: 'completed', time: '13:30' },
+        ],
+        isLoading: false,
+      });
+    }, 1500);
+  };
+
+  // Função para renderizar o chip de status
+  const renderStatusChip = (status: string) => {
+    let color: 'success' | 'warning' | 'error' | 'default' = 'default';
+    let label = status;
+
+    switch (status) {
+      case 'completed':
+        color = 'success';
+        label = 'Concluído';
+        break;
+      case 'pending':
+        color = 'warning';
+        label = 'Pendente';
+        break;
+      case 'cancelled':
+        color = 'error';
+        label = 'Cancelado';
+        break;
+    }
+
+    return <Chip size="small" color={color} label={label} />;
+  };
+
   if (dashboardData.isLoading) {
     return (
-      <div className="flex justify-center items-center h-[80vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '60vh' 
+      }}>
+        <CircularProgress />
+      </Box>
     );
   }
 
   return (
-    <div>
-      <header className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">Dashboard</h1>
-        <p className="text-gray-600">Bem-vindo ao painel de controle do {dashboardData.restaurantName}</p>
-      </header>
+    <Box>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold', mb: 1 }}>
+          Bem-vindo ao Dashboard
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Visão geral do seu restaurante e pedidos recentes
+        </Typography>
+      </Box>
 
-      {/* Cards de estatísticas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <StatCard 
-          title="Total de Pedidos" 
-          value={dashboardData.totalOrders} 
-          icon="📊" 
-          color="text-blue-500" 
-        />
-        <StatCard 
-          title="Pedidos Pendentes" 
-          value={dashboardData.pendingOrders} 
-          icon="⏳" 
-          color="text-yellow-500" 
-        />
-        <StatCard 
-          title="Pedidos Concluídos" 
-          value={dashboardData.completedOrders} 
-          icon="✅" 
-          color="text-green-500" 
-        />
-        <StatCard 
-          title="Itens no Menu" 
-          value={dashboardData.totalMenuItems} 
-          icon="🍔" 
-          color="text-red-500" 
-        />
-      </div>
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard 
+            title="Total de Pedidos" 
+            value={dashboardData.totalOrders} 
+            icon={<OrderIcon />} 
+            color="primary" 
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard 
+            title="Pedidos Pendentes" 
+            value={dashboardData.pendingOrders} 
+            icon={<OrderIcon />} 
+            color="warning" 
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard 
+            title="Pedidos Concluídos" 
+            value={dashboardData.completedOrders} 
+            icon={<CheckCircle />} 
+            color="success" 
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard 
+            title="Itens no Menu" 
+            value={dashboardData.totalMenuItems} 
+            icon={<MenuIcon />} 
+            color="info" 
+          />
+        </Grid>
+      </Grid>
 
-      {/* Pedidos recentes */}
-      <div className="bg-white rounded-lg shadow-card p-6 mb-8">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold text-gray-800">Pedidos Recentes</h2>
-          <Link 
-            href="/dashboard/orders" 
-            className="text-primary hover:underline"
+      <Box sx={{ mb: 4 }}>
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          mb: 2
+        }}>
+          <Typography variant="h5" component="h2" sx={{ fontWeight: 'bold' }}>
+            Pedidos Recentes
+          </Typography>
+          <Button 
+            variant="outlined" 
+            component={Link} 
+            href="/dashboard/orders"
+            endIcon={<ArrowForward />}
           >
-            Ver todos
-          </Link>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Itens</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tempo</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            Ver Todos
+          </Button>
+        </Box>
+        
+        <TableContainer component={Paper} sx={{ boxShadow: 2, borderRadius: 2 }}>
+          <Table>
+            <TableHead sx={{ bgcolor: 'background.default' }}>
+              <TableRow>
+                <TableCell>ID</TableCell>
+                <TableCell>Cliente</TableCell>
+                <TableCell align="center">Itens</TableCell>
+                <TableCell align="right">Total</TableCell>
+                <TableCell align="center">Status</TableCell>
+                <TableCell align="right">Hora</TableCell>
+                <TableCell align="center">Ações</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
               {dashboardData.recentOrders.map((order) => (
-                <tr key={order.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{order.id}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.customer}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.items}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.total}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                      ${order.status === 'Pendente' ? 'bg-yellow-100 text-yellow-800' : 
-                        order.status === 'Preparando' ? 'bg-blue-100 text-blue-800' : 
-                        'bg-green-100 text-green-800'}`}>
-                      {order.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.time}</td>
-                </tr>
+                <TableRow key={order.id} hover>
+                  <TableCell>#{order.id}</TableCell>
+                  <TableCell>{order.customer}</TableCell>
+                  <TableCell align="center">{order.items}</TableCell>
+                  <TableCell align="right">{order.total}</TableCell>
+                  <TableCell align="center">
+                    {renderStatusChip(order.status)}
+                  </TableCell>
+                  <TableCell align="right">{order.time}</TableCell>
+                  <TableCell align="center">
+                    <Button 
+                      size="small" 
+                      component={Link} 
+                      href={`/dashboard/orders?id=${order.id}`}
+                    >
+                      Detalhes
+                    </Button>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
 
-      {/* Links rápidos */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Link href="/dashboard/orders/new" className="block p-6 bg-white rounded-lg shadow-card hover:shadow-lg transition-shadow">
-          <h3 className="text-lg font-bold text-primary mb-2">Novo Pedido</h3>
-          <p className="text-gray-600">Criar um novo pedido manualmente</p>
-        </Link>
-        <Link href="/dashboard/menus" className="block p-6 bg-white rounded-lg shadow-card hover:shadow-lg transition-shadow">
-          <h3 className="text-lg font-bold text-primary mb-2">Gerenciar Menu</h3>
-          <p className="text-gray-600">Atualizar itens e categorias do menu</p>
-        </Link>
-        <Link href="/dashboard/settings" className="block p-6 bg-white rounded-lg shadow-card hover:shadow-lg transition-shadow">
-          <h3 className="text-lg font-bold text-primary mb-2">Configurações</h3>
-          <p className="text-gray-600">Atualizar informações do restaurante</p>
-        </Link>
-      </div>
-    </div>
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={6}>
+          <Paper sx={{ p: 3, height: '100%', boxShadow: 2, borderRadius: 2 }}>
+            <Typography variant="h5" component="h2" sx={{ fontWeight: 'bold', mb: 2 }}>
+              Acesso Rápido
+            </Typography>
+            <Divider sx={{ mb: 2 }} />
+            <Grid container spacing={2}>
+              <Grid item xs={6}>
+                <Button 
+                  variant="outlined" 
+                  fullWidth 
+                  component={Link} 
+                  href="/dashboard/menus" 
+                  startIcon={<MenuIcon />}
+                  sx={{ py: 1.5, justifyContent: 'flex-start' }}
+                >
+                  Gerenciar Menus
+                </Button>
+              </Grid>
+              <Grid item xs={6}>
+                <Button 
+                  variant="outlined" 
+                  fullWidth 
+                  component={Link} 
+                  href="/dashboard/orders" 
+                  startIcon={<OrderIcon />}
+                  sx={{ py: 1.5, justifyContent: 'flex-start' }}
+                >
+                  Gerenciar Pedidos
+                </Button>
+              </Grid>
+              <Grid item xs={6}>
+                <Button 
+                  variant="outlined" 
+                  fullWidth 
+                  component={Link} 
+                  href="/dashboard/restaurants" 
+                  startIcon={<RestaurantIcon />}
+                  sx={{ py: 1.5, justifyContent: 'flex-start' }}
+                >
+                  Gerenciar Restaurante
+                </Button>
+              </Grid>
+              <Grid item xs={6}>
+                <Button 
+                  variant="outlined" 
+                  fullWidth 
+                  component={Link} 
+                  href="/dashboard/settings" 
+                  startIcon={<Settings />}
+                  sx={{ py: 1.5, justifyContent: 'flex-start' }}
+                >
+                  Configurações
+                </Button>
+              </Grid>
+            </Grid>
+          </Paper>
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <Paper sx={{ p: 3, height: '100%', boxShadow: 2, borderRadius: 2 }}>
+            <Typography variant="h5" component="h2" sx={{ fontWeight: 'bold', mb: 2 }}>
+              Informações do Restaurante
+            </Typography>
+            <Divider sx={{ mb: 2 }} />
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="subtitle2" color="text.secondary">
+                Nome
+              </Typography>
+              <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                {dashboardData.restaurantName}
+              </Typography>
+            </Box>
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="subtitle2" color="text.secondary">
+                Endereço
+              </Typography>
+              <Typography variant="body1">
+                Av. Exemplo, 123 - Centro
+              </Typography>
+            </Box>
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="subtitle2" color="text.secondary">
+                Contato
+              </Typography>
+              <Typography variant="body1">
+                (11) 98765-4321
+              </Typography>
+            </Box>
+            <Box sx={{ mt: 3 }}>
+              <Button 
+                variant="contained" 
+                component={Link} 
+                href="/dashboard/settings"
+                endIcon={<Edit />}
+              >
+                Editar Informações
+              </Button>
+            </Box>
+          </Paper>
+        </Grid>
+      </Grid>
+    </Box>
   );
 } 
