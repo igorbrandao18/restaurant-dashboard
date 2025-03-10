@@ -14,9 +14,11 @@
     "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^6.4.7",
     "@mui/material": "^6.4.7",
+    "@types/styled-components": "^5.1.34",
     "next": "15.2.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "styled-components": "^6.1.15",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-react": "^5.20.0"
   },

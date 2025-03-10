@@ -3,171 +3,134 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import { 
-  Box, 
-  Container, 
-  TextField, 
-  Button, 
-  Typography, 
-  Paper, 
-  Alert, 
-  CircularProgress,
-  InputAdornment,
-  IconButton
-} from '@mui/material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
+import styled from 'styled-components';
+import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
+import Card from '@/components/ui/Card';
+import { Container, Flex } from '@/components/ui/Grid';
+
+const LoginContainer = styled.div`
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: ${props => props.theme.spacing(4)};
+  background-color: ${props => props.theme.colors.background.default};
+`;
+
+const LoginCard = styled(Card)`
+  max-width: 450px;
+  width: 100%;
+`;
+
+const LoginHeader = styled.div`
+  text-align: center;
+  margin-bottom: ${props => props.theme.spacing(4)};
+`;
+
+const LoginTitle = styled.h1`
+  font-size: ${props => props.theme.typography.fontSize.h4};
+  color: ${props => props.theme.colors.primary.main};
+  margin-bottom: ${props => props.theme.spacing(1)};
+`;
+
+const LoginSubtitle = styled.p`
+  color: ${props => props.theme.colors.text.secondary};
+  margin-bottom: 0;
+`;
+
+const ErrorMessage = styled.div`
+  background-color: ${props => `${props.theme.colors.error.light}33`};
+  border: 1px solid ${props => props.theme.colors.error.light};
+  color: ${props => props.theme.colors.error.main};
+  padding: ${props => props.theme.spacing(2)};
+  border-radius: ${props => props.theme.borderRadius.small};
+  margin-bottom: ${props => props.theme.spacing(3)};
+`;
+
+const LoginForm = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: ${props => props.theme.spacing(2)};
+`;
+
+const LoginFooter = styled.div`
+  text-align: center;
+  margin-top: ${props => props.theme.spacing(3)};
+`;
+
+const StyledLink = styled(Link)`
+  color: ${props => props.theme.colors.primary.main};
+  text-decoration: none;
+  
+  &:hover {
+    text-decoration: underline;
+  }
+`;
 
 export default function Login() {
   const { login, isLoading, error } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await login({ username, password });
   };
 
-  const handleTogglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-
   return (
-    <Box 
-      sx={{ 
-        minHeight: '100vh', 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-        bgcolor: 'background.default',
-        py: 4,
-        px: 2
-      }}
-    >
-      <Container maxWidth="sm">
-        <Paper 
-          elevation={3} 
-          sx={{ 
-            p: 4, 
-            display: 'flex', 
-            flexDirection: 'column', 
-            alignItems: 'center' 
-          }}
-        >
-          <Typography 
-            component="h1" 
-            variant="h4" 
-            sx={{ 
-              mb: 3, 
-              fontWeight: 'bold',
-              color: 'primary.main'
-            }}
-          >
-            Login
-          </Typography>
-          
-          <Typography 
-            variant="body1" 
-            sx={{ mb: 4, textAlign: 'center', color: 'text.secondary' }}
-          >
-            Entre com suas credenciais para acessar o dashboard
-          </Typography>
+    <LoginContainer>
+      <Container>
+        <LoginCard padding>
+          <LoginHeader>
+            <LoginTitle>Login</LoginTitle>
+            <LoginSubtitle>Entre com suas credenciais para acessar o dashboard</LoginSubtitle>
+          </LoginHeader>
           
           {error && (
-            <Alert 
-              severity="error" 
-              sx={{ width: '100%', mb: 3 }}
-            >
+            <ErrorMessage>
               {error}
-            </Alert>
+            </ErrorMessage>
           )}
           
-          <Box 
-            component="form" 
-            onSubmit={handleSubmit} 
-            sx={{ width: '100%' }}
-          >
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="username"
+          <LoginForm onSubmit={handleSubmit}>
+            <Input
               label="Nome de Usuário"
-              name="username"
-              autoComplete="username"
-              autoFocus
+              type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              sx={{ mb: 2 }}
+              fullWidth
+              required
+              autoFocus
             />
             
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
+            <Input
               label="Senha"
-              type={showPassword ? 'text' : 'password'}
-              id="password"
-              autoComplete="current-password"
+              type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={handleTogglePasswordVisibility}
-                      edge="end"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-              sx={{ mb: 3 }}
+              fullWidth
+              required
             />
             
             <Button
               type="submit"
-              fullWidth
-              variant="contained"
               disabled={isLoading}
-              sx={{ 
-                py: 1.5, 
-                mb: 2,
-                position: 'relative'
-              }}
+              fullWidth
+              variant="primary"
+              size="large"
             >
-              {isLoading ? (
-                <CircularProgress 
-                  size={24} 
-                  sx={{ 
-                    position: 'absolute',
-                    color: 'primary.light'
-                  }} 
-                />
-              ) : 'Entrar'}
+              {isLoading ? 'Entrando...' : 'Entrar'}
             </Button>
-            
-            <Box sx={{ textAlign: 'center', mt: 2 }}>
-              <Link href="/" style={{ textDecoration: 'none' }}>
-                <Typography 
-                  variant="body2" 
-                  sx={{ 
-                    color: 'primary.main',
-                    '&:hover': {
-                      textDecoration: 'underline'
-                    }
-                  }}
-                >
-                  Voltar para a página inicial
-                </Typography>
-              </Link>
-            </Box>
-          </Box>
-        </Paper>
+          </LoginForm>
+          
+          <LoginFooter>
+            <StyledLink href="/">
+              Voltar para a página inicial
+            </StyledLink>
+          </LoginFooter>
+        </LoginCard>
       </Container>
-    </Box>
+    </LoginContainer>
   );
 } 
