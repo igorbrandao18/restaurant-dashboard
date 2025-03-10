@@ -4,39 +4,62 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { 
-  AppBar, 
-  Box, 
-  CssBaseline, 
-  Divider, 
-  Drawer, 
-  IconButton, 
-  List, 
-  ListItem, 
-  ListItemButton, 
-  ListItemIcon, 
-  ListItemText, 
-  Toolbar, 
-  Typography, 
-  Button,
-  Avatar,
-  Menu,
-  MenuItem,
-  Tooltip
-} from '@mui/material';
+import styled from 'styled-components';
 import {
-  Menu as MenuIcon,
-  Dashboard as DashboardIcon,
-  Restaurant as RestaurantIcon,
-  MenuBook as MenuBookIcon,
-  ShoppingCart as OrdersIcon,
-  Settings as SettingsIcon,
-  Description as ApiDocsIcon,
-  Logout as LogoutIcon,
-  Person as PersonIcon
-} from '@mui/icons-material';
+  Sidebar,
+  SidebarHeader,
+  SidebarTitle,
+  NavList,
+  NavItem,
+  NavDivider,
+  TopBar,
+  MenuButton,
+  PageTitle,
+  UserMenu,
+  Avatar,
+  Dropdown,
+  DropdownItem,
+  MainContent,
+  LoadingContainer,
+  LoadingText
+} from '@/components/ui/Navigation';
+import {
+  MenuIcon,
+  DashboardIcon,
+  RestaurantIcon,
+  MenuBookIcon,
+  OrdersIcon,
+  SettingsIcon,
+  ApiDocsIcon,
+  LogoutIcon,
+  PersonIcon
+} from '@/components/ui/Icons';
 
-const drawerWidth = 280;
+// Overlay para o menu mobile
+const MobileOverlay = styled.div<{ isOpen: boolean }>`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1100;
+  display: ${props => props.isOpen ? 'block' : 'none'};
+  
+  @media (min-width: ${props => props.theme.breakpoints.sm}) {
+    display: none;
+  }
+`;
+
+// Sidebar com classe para mobile
+const MobileSidebar = styled(Sidebar)<{ isOpen: boolean }>`
+  transform: translateX(${props => props.isOpen ? '0' : '-100%'});
+  transition: transform 0.3s ease-in-out;
+  
+  @media (min-width: ${props => props.theme.breakpoints.sm}) {
+    transform: translateX(0);
+  }
+`;
 
 export default function DashboardLayout({
   children,
@@ -48,7 +71,7 @@ export default function DashboardLayout({
   const { user, isAuthenticated, isLoading, logout } = useAuth();
   const [isClient, setIsClient] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [userMenuAnchorEl, setUserMenuAnchorEl] = useState<null | HTMLElement>(null);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   
   // Verificar se estamos no cliente para renderização
   useEffect(() => {
@@ -66,235 +89,101 @@ export default function DashboardLayout({
     setMobileOpen(!mobileOpen);
   };
   
-  const handleUserMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setUserMenuAnchorEl(event.currentTarget);
-  };
-  
-  const handleUserMenuClose = () => {
-    setUserMenuAnchorEl(null);
+  const handleUserMenuToggle = () => {
+    setUserMenuOpen(!userMenuOpen);
   };
   
   const handleLogout = () => {
-    handleUserMenuClose();
+    setUserMenuOpen(false);
     logout();
     router.push('/login');
   };
   
   const menuItems = [
-    { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
-    { text: 'Restaurantes', icon: <RestaurantIcon />, path: '/dashboard/restaurants' },
-    { text: 'Menus', icon: <MenuBookIcon />, path: '/dashboard/menus' },
-    { text: 'Pedidos', icon: <OrdersIcon />, path: '/dashboard/orders' },
-    { text: 'Configurações', icon: <SettingsIcon />, path: '/dashboard/settings' },
+    { text: 'Dashboard', icon: <DashboardIcon className="icon" />, path: '/dashboard' },
+    { text: 'Restaurantes', icon: <RestaurantIcon className="icon" />, path: '/dashboard/restaurants' },
+    { text: 'Menus', icon: <MenuBookIcon className="icon" />, path: '/dashboard/menus' },
+    { text: 'Pedidos', icon: <OrdersIcon className="icon" />, path: '/dashboard/orders' },
+    { text: 'Configurações', icon: <SettingsIcon className="icon" />, path: '/dashboard/settings' },
   ];
-  
-  const drawer = (
-    <Box>
-      <Toolbar sx={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-        py: 2
-      }}>
-        <Typography variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
-          Restaurant Dashboard
-        </Typography>
-      </Toolbar>
-      <Divider />
-      <List>
-        {menuItems.map((item) => (
-          <ListItem key={item.text} disablePadding>
-            <ListItemButton 
-              component={Link} 
-              href={item.path}
-              selected={pathname === item.path}
-              sx={{
-                py: 1.5,
-                '&.Mui-selected': {
-                  backgroundColor: 'primary.light',
-                  color: 'white',
-                  '&:hover': {
-                    backgroundColor: 'primary.main',
-                  },
-                  '& .MuiListItemIcon-root': {
-                    color: 'white',
-                  },
-                },
-              }}
-            >
-              <ListItemIcon sx={{ 
-                minWidth: 40,
-                color: pathname === item.path ? 'white' : 'inherit'
-              }}>
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText primary={item.text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
-      <Divider />
-      <List>
-        <ListItem disablePadding>
-          <ListItemButton 
-            component={Link} 
-            href="/api-docs"
-            selected={pathname === '/api-docs'}
-            sx={{
-              py: 1.5,
-              '&.Mui-selected': {
-                backgroundColor: 'primary.light',
-                color: 'white',
-                '&:hover': {
-                  backgroundColor: 'primary.main',
-                },
-                '& .MuiListItemIcon-root': {
-                  color: 'white',
-                },
-              },
-            }}
-          >
-            <ListItemIcon sx={{ 
-              minWidth: 40,
-              color: pathname === '/api-docs' ? 'white' : 'inherit'
-            }}>
-              <ApiDocsIcon />
-            </ListItemIcon>
-            <ListItemText primary="Documentação API" />
-          </ListItemButton>
-        </ListItem>
-      </List>
-    </Box>
-  );
   
   // Mostrar tela de carregamento ou redirecionamento
   if (isLoading || !isClient || !isAuthenticated) {
     return (
-      <Box 
-        sx={{ 
-          display: 'flex', 
-          justifyContent: 'center', 
-          alignItems: 'center', 
-          height: '100vh' 
-        }}
-      >
-        <Typography variant="h6" color="text.secondary">
-          Carregando...
-        </Typography>
-      </Box>
+      <LoadingContainer>
+        <LoadingText>Carregando...</LoadingText>
+      </LoadingContainer>
     );
   }
   
   return (
-    <Box sx={{ display: 'flex' }}>
-      <CssBaseline />
-      <AppBar
-        position="fixed"
-        sx={{
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
-          ml: { sm: `${drawerWidth}px` },
-          boxShadow: 1,
-        }}
-      >
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: 'none' } }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            {user?.name || 'Dashboard'}
-          </Typography>
+    <>
+      {/* Overlay para fechar o menu no mobile */}
+      <MobileOverlay isOpen={mobileOpen} onClick={handleDrawerToggle} />
+      
+      {/* Sidebar */}
+      <MobileSidebar isOpen={mobileOpen}>
+        <SidebarHeader>
+          <SidebarTitle>Restaurant Dashboard</SidebarTitle>
+        </SidebarHeader>
+        
+        <NavList>
+          {menuItems.map((item) => (
+            <NavItem key={item.text} active={pathname === item.path}>
+              <Link href={item.path}>
+                {item.icon}
+                {item.text}
+              </Link>
+            </NavItem>
+          ))}
+        </NavList>
+        
+        <NavDivider />
+        
+        <NavList>
+          <NavItem active={pathname === '/api-docs'}>
+            <Link href="/api-docs">
+              <ApiDocsIcon className="icon" />
+              Documentação API
+            </Link>
+          </NavItem>
+        </NavList>
+      </MobileSidebar>
+      
+      {/* Barra superior */}
+      <TopBar>
+        <MenuButton onClick={handleDrawerToggle}>
+          <MenuIcon />
+        </MenuButton>
+        
+        <PageTitle>{user?.name || 'Dashboard'}</PageTitle>
+        
+        <UserMenu>
+          <Avatar onClick={handleUserMenuToggle}>
+            {user?.name?.charAt(0) || 'U'}
+          </Avatar>
           
-          <Tooltip title="Perfil do usuário">
-            <IconButton 
-              onClick={handleUserMenuOpen} 
-              sx={{ p: 0 }}
-              aria-controls={Boolean(userMenuAnchorEl) ? 'user-menu' : undefined}
-              aria-haspopup="true"
-              aria-expanded={Boolean(userMenuAnchorEl) ? 'true' : undefined}
-            >
-              <Avatar sx={{ bgcolor: 'primary.main' }}>
-                {user?.name?.charAt(0) || 'U'}
-              </Avatar>
-            </IconButton>
-          </Tooltip>
-          
-          <Menu
-            id="user-menu"
-            anchorEl={userMenuAnchorEl}
-            open={Boolean(userMenuAnchorEl)}
-            onClose={handleUserMenuClose}
-            transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-            anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-          >
-            <MenuItem onClick={() => {
-              handleUserMenuClose();
+          <Dropdown isOpen={userMenuOpen}>
+            <DropdownItem onClick={() => {
+              setUserMenuOpen(false);
               router.push('/dashboard/settings');
             }}>
-              <ListItemIcon>
-                <PersonIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>Perfil</ListItemText>
-            </MenuItem>
-            <MenuItem onClick={handleLogout}>
-              <ListItemIcon>
-                <LogoutIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>Sair</ListItemText>
-            </MenuItem>
-          </Menu>
-        </Toolbar>
-      </AppBar>
+              <PersonIcon className="icon" />
+              Perfil
+            </DropdownItem>
+            
+            <DropdownItem onClick={handleLogout}>
+              <LogoutIcon className="icon" />
+              Sair
+            </DropdownItem>
+          </Dropdown>
+        </UserMenu>
+      </TopBar>
       
-      <Box
-        component="nav"
-        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
-        aria-label="menu items"
-      >
-        <Drawer
-          variant="temporary"
-          open={mobileOpen}
-          onClose={handleDrawerToggle}
-          ModalProps={{
-            keepMounted: true, // Melhor desempenho em dispositivos móveis
-          }}
-          sx={{
-            display: { xs: 'block', sm: 'none' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
-          }}
-        >
-          {drawer}
-        </Drawer>
-        <Drawer
-          variant="permanent"
-          sx={{
-            display: { xs: 'none', sm: 'block' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
-          }}
-          open
-        >
-          {drawer}
-        </Drawer>
-      </Box>
-      
-      <Box
-        component="main"
-        sx={{ 
-          flexGrow: 1, 
-          p: 3, 
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
-          bgcolor: 'background.default',
-          minHeight: '100vh'
-        }}
-      >
-        <Toolbar />
+      {/* Conteúdo principal */}
+      <MainContent>
         {children}
-      </Box>
-    </Box>
+      </MainContent>
+    </>
   );
 } 
