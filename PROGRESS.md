@@ -40,7 +40,7 @@ Este documento acompanha o progresso do desenvolvimento do dashboard para restau
 - [x] Layout do dashboard com proteção de rotas
 - [x] Página principal do dashboard (simulada)
 - [x] Gerenciamento de Restaurantes
-- [ ] Gerenciamento de Menus
+- [x] Gerenciamento de Menus
 - [ ] Gerenciamento de Pedidos
 - [ ] Configurações do Restaurante
 
@@ -58,10 +58,10 @@ Este documento acompanha o progresso do desenvolvimento do dashboard para restau
 - [ ] Criar guia de instalação e configuração
 
 ## Próximos Passos
-1. Implementar página de gerenciamento de menus
-2. Implementar página de gerenciamento de pedidos
-3. Implementar página de configurações
-4. Implementar testes
+1. Implementar página de gerenciamento de pedidos
+2. Implementar página de configurações
+3. Implementar testes
+4. Melhorar a documentação
 
 ## Notas e Decisões Técnicas
 - A API está disponível em http://192.168.0.127:3001/api-json
@@ -69,4 +69,5 @@ Este documento acompanha o progresso do desenvolvimento do dashboard para restau
 - O dashboard é responsivo para funcionar em diferentes dispositivos
 - Implementamos autenticação com JWT usando o Context API do React
 - Utilizamos Tailwind CSS para estilização, facilitando o desenvolvimento responsivo
-- Criamos um sistema de proteção de rotas para páginas que requerem autenticação 
+- Criamos um sistema de proteção de rotas para páginas que requerem autenticação
+- Implementamos interfaces estendidas para lidar com tipos incompletos da API 
