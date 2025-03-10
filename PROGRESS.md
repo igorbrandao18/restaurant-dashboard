@@ -42,7 +42,7 @@ Este documento acompanha o progresso do desenvolvimento do dashboard para restau
 - [x] Gerenciamento de Restaurantes
 - [x] Gerenciamento de Menus
 - [x] Gerenciamento de Pedidos
-- [ ] Configurações do Restaurante
+- [x] Configurações do Restaurante
 
 ### 5. Testes
 - [ ] Configurar ambiente de testes
